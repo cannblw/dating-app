@@ -1,0 +1,38 @@
+# Project #
+
+# System #
+.DS_Store
+
+# Mercurial #
+.orig
+
+# Git #
+.gitignore
+
+# Node #
+node_modules/
+
+# Grunt build #
+dist/
+
+# Bower #
+bower_components/
+public/system/lib
+.bower-cache/
+.bower-registry/
+.bower-tmp/
+.tmp/
+
+# IDE #
+nbproject/
+.idea/
+atlassian-ide-plugin.xml
+
+# expo
+.expo/
+
+# misc #
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
