@@ -1,12 +1,28 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+
+import {
+    StyleSheet,
+    View
+} from 'react-native';
+
+import {
+    Container,
+    Content,
+    Text
+} from 'native-base';
+
+import DiscoverList from '../components/discover/DiscoverList';
 
 export default class HomeScreen extends React.Component {
     render() {
         return (
-            <View style={styles.container}>
-                <Text>Working app!</Text>
-            </View>
+            <Container>
+                <Content contentContainerStyle={styles.container}>
+                    <View style={styles.listContainer}>
+                        <DiscoverList />
+                    </View>
+                </Content>
+            </Container>
         );
     }
 }
@@ -14,8 +30,9 @@ export default class HomeScreen extends React.Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
-        alignItems: 'center',
-        justifyContent: 'center',
+        backgroundColor: '#f2f2f2'
     },
+    listContainer: {
+        width: '100%',
+    }
 });
