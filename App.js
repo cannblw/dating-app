@@ -1,12 +1,19 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
 
 import TabNavigator from './navigators/TabNavigator';
+
+import 'es6-symbol/implement';
+
+import { Provider } from 'mobx-react';
+
+import * as stores from './stores';
 
 export default class App extends React.Component {
     render() {
         return (
-            <TabNavigator />
+            <Provider {...stores}>
+                <TabNavigator />
+            </Provider>
         );
     }
 }

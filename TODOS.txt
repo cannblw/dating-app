@@ -1,0 +1,2 @@
+Return user online status from api.
+

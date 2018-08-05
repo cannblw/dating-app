@@ -32,7 +32,7 @@ class Discover extends React.Component {
         super(props);
 
         // TODO: Change hardcoded data to api call
-       this.users = [
+       /*this.users = [
            {
                id: 1,
                name: 'Agustín Rodriguez',
@@ -81,8 +81,10 @@ class Discover extends React.Component {
                distance: 7,
                online: false
            }
-       ];
+       ];*/
     }
+
+
     _renderItem = ({item, index}) => {
         let cardMarginStyle;
 
@@ -91,14 +93,14 @@ class Discover extends React.Component {
         } else { // Card on left
             cardMarginStyle = {marginLeft: cardMargin / 2};
         }
-
+        
         return (
                 <View style={[styles.card, cardMarginStyle]}>
                     <View style={styles.cardPhotoContainer}>
                         <Image
                             style={styles.cardPhoto}
                             resizeMode='cover'
-                            source={{uri: 'https://images.pexels.com/photos/582039/pexels-photo-582039.jpeg?auto=compress&cs=tinysrgb&h=350'}}
+                            source={{uri: item.photo}}
                           />
                     </View>
 
@@ -106,7 +108,7 @@ class Discover extends React.Component {
                         <View style={styles.nameContainer}>
                             <Text numberOfLines={1} ellipsizeMode='tail' style={styles.infoText}>{item.name}</Text>
                             <Text style={styles.infoText}>, {item.age}</Text>
-                            {renderIf(item.online,
+                            {renderIf(false, // TODO: Return user online status from api
                                 <FontAwesome name='circle' size={10} style={styles.onlineIcon} />
                             )}
                         </View>
@@ -128,11 +130,11 @@ class Discover extends React.Component {
     }*/
 
     render() {
-        this.lastIndex = this.users.length - 1;
+        this.lastIndex = this.props.users.length - 1;
 
         return (
             <FlatList
-                data={this.users}
+                data={this.props.users}
                 renderItem={this._renderItem}
                 keyExtractor={this._keyExtractor}
                 numColumns={2}
