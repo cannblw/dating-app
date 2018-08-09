@@ -3,15 +3,16 @@ import React from 'react';
 import {
     FlatList,
     Image,
-    StyleSheet
+    Text,
+    StyleSheet,
+    View
 } from 'react-native';
 
 import {
-    Body,
-    CardItem,
-    Text,
-    View
-} from 'native-base';
+    inject,
+    observer,
+    Observer
+} from 'mobx-react';
 
 import {
     withNavigation
@@ -27,74 +28,28 @@ import renderIf from '../../utils/renderIf';
 // Margin between cards and screen limits
 const cardMargin = 8;
 
+@inject('usersStore') @observer
 class Discover extends React.Component {
     constructor(props) {
         super(props);
 
-        // TODO: Change hardcoded data to api call
-       /*this.users = [
-           {
-               id: 1,
-               name: 'Agustín Rodriguez',
-               gender: 'male',
-               age: 19,
-               distance: 2,
-               online: true
-           },
-           {
-               id: 2,
-               name: 'María Santos',
-               gender: 'female',
-               age: 20,
-               distance: 4,
-               online: false
-           },
-           {
-               id: 3,
-               name: 'La rebehh',
-               gender: 'female',
-               age: 18,
-               distance: 7,
-               online: true
-           },
-           {
-               id: 4,
-               name: 'La rebehh',
-               gender: 'female',
-               age: 18,
-               distance: 7,
-               online: true
-           },
-           {
-               id: 5,
-               name: 'La rebehh',
-               gender: 'female',
-               age: 18,
-               distance: 7,
-               online: false
-           },
-           {
-               id: 6,
-               name: 'La rebehh',
-               gender: 'female',
-               age: 18,
-               distance: 7,
-               online: false
-           }
-       ];*/
+        this.state = {
+            isRefreshing: false
+        }
     }
 
 
-    _renderItem = ({item, index}) => {
-        let cardMarginStyle;
+    _renderItem = ({item, index}) =>
+        <Observer>{ () => {
+            let cardMarginStyle;
 
-        if (index % 2 == 0) { // Card on right
-            cardMarginStyle = {marginRight: cardMargin / 2};
-        } else { // Card on left
-            cardMarginStyle = {marginLeft: cardMargin / 2};
-        }
-        
-        return (
+            if (index % 2 == 0) { // Card on right
+                cardMarginStyle = {marginRight: cardMargin / 2};
+            } else { // Card on left
+                cardMarginStyle = {marginLeft: cardMargin / 2};
+            }
+
+            return (
                 <View style={[styles.card, cardMarginStyle]}>
                     <View style={styles.cardPhotoContainer}>
                         <Image
@@ -119,26 +74,40 @@ class Discover extends React.Component {
                     </View>
 
                 </View>
+            )
+        }}</Observer>
 
-        )
-    }
-
-    _keyExtractor = (item, index) => index.toString()
+    _keyExtractor = (item, index) => index.toString();
 
     /*_onPress = (id) => {
         this.props.navigation.navigate('Detail', {'eventId': id});
     }*/
 
+    _setIsRefreshing(refreshing) {
+        this.setState({
+            isRefreshing: refreshing
+        })
+    }
+
     render() {
-        this.lastIndex = this.props.users.length - 1;
+        this.lastIndex = this.props.usersStore.nearbyUsers.length - 1;
 
         return (
             <FlatList
-                data={this.props.users}
+                data={this.props.usersStore.nearbyUsers.slice()}
                 renderItem={this._renderItem}
                 keyExtractor={this._keyExtractor}
                 numColumns={2}
                 contentContainerStyle={styles.listContentContainer}
+                onEndReachedThreshold={1}
+                onEndReached={() => this.props.usersStore.fetchMoreNearbyUsers()}
+                onRefresh={() => {
+                    this._setIsRefreshing(true);
+                    this.props.usersStore.refreshNearbyUsers().then(() => {
+                        this._setIsRefreshing(false);
+                    });
+                }}
+                refreshing={this.state.isRefreshing}
             />
         )
     }
