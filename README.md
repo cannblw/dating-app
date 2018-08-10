@@ -1,4 +1,4 @@
-## React Native dating app
+# React Native dating app
 
 Dating app made with React Native and MobX based on a custom private API.
 
