@@ -1,11 +1,12 @@
 import {
     ADD_USERS_TO_NEARBY_USERS_LIST,
     REFRESH_NEARBY_USERS_LIST,
+    SET_HAS_LOADED_ALL_NEARBY_USERS
 } from '../actions/actionTypes';
 
 initialState = {
     nearbyUsers: [],
-    hasErrorsFetchingNearbyUsers: true
+    hasLoadedAllNearbyUsers: false
 }
 
 const usersReducer = (state = initialState, action) => {
@@ -15,6 +16,9 @@ const usersReducer = (state = initialState, action) => {
             break;
         case REFRESH_NEARBY_USERS_LIST:
             return { ...state, nearbyUsers: action.payload.users }
+            break;
+        case SET_HAS_LOADED_ALL_NEARBY_USERS:
+            return { ...state, hasLoadedAllNearbyUsers: action.payload.status }
             break;
         default:
           return state;

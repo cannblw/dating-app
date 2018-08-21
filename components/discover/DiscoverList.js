@@ -17,7 +17,8 @@ import {
 } from 'react-redux';
 
 import {
-    getNearbyUsers
+    getNearbyUsers,
+    refreshNearbyUsers
 } from '../../actions/usersActions';
 
 import {
@@ -87,17 +88,35 @@ class Discover extends React.Component {
     _setIsRefreshing(refreshing) {
         this.setState({
             isRefreshing: refreshing
-        })
+        });
+    }
+
+    _setIsFetching(fetching) {
+        this.setState({
+            isFetching: fetching
+        });
     }
 
     _getNextPage() {
-        const nextPage = this.state.page + 1;
+        if (!this.state.isFetching && !this.props.hasLoadedAllNearbyUsers) {
+            this._setIsFetching(true);
 
-        this.setState({
-            page: nextPage
-        });
+            const nextPage = this.state.page + 1;
+            this.setState({ page: nextPage });
 
-        return this.props.dispatch(getNearbyUsers(nextPage));
+            this.props.dispatch(getNearbyUsers(nextPage)).then(() => {
+                this._setIsFetching(false);
+            });
+        }
+    }
+
+    _refreshList() {
+        if (!this.state.isRefreshing) {
+            this._setIsRefreshing(true);
+            this.props.dispatch(refreshNearbyUsers()).then(() => {
+                this._setIsRefreshing(false);
+            });
+        }
     }
 
     render() {
@@ -110,12 +129,7 @@ class Discover extends React.Component {
                 contentContainerStyle={styles.listContentContainer}
                 onEndReachedThreshold={1}
                 onEndReached={() => this._getNextPage()}
-                onRefresh={() => {
-                    this._setIsRefreshing(true);
-                    this.props.dispatch(getNearbyUsers(1)).then(() => {
-                        this._setIsRefreshing(false);
-                    });
-                }}
+                onRefresh={() => this._refreshList()}
                 refreshing={this.state.isRefreshing}
             />
         )
@@ -188,8 +202,10 @@ const styles = StyleSheet.create({
 const mapStateToProps = state => {
     return {
         nearbyUsers: state.users.nearbyUsers,
+        hasLoadedAllNearbyUsers: state.users.hasLoadedAllNearbyUsers,
     }
 }
+
 
 
 export default connect(mapStateToProps)(withNavigation(Discover));
