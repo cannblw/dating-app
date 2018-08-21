@@ -8,9 +8,12 @@ import {
 } from 'react-native';
 
 import {
-    inject,
-    observer,
-} from 'mobx-react';
+    connect
+} from 'react-redux';
+
+import {
+    getNearbyUsers
+} from '../actions/usersActions';
 
 import Spinner from 'react-native-loading-spinner-overlay';
 
@@ -19,22 +22,18 @@ import DiscoverList from '../components/discover/DiscoverList';
 import renderIf from '../utils/renderIf';
 import Colors from '../Colors';
 
-@inject('usersStore') @observer
-export default class HomeScreen extends React.Component {
+class DiscoverScreen extends React.Component {
     constructor(props) {
         super(props);
-
-        const { usersStore } = this.props;
-
         this.state = {
             usersLoaded: false,
             showNoUsersNearbyMsg: false
         }
 
         // If no nearby users loaded
-        if (usersStore.nearbyUsers.length == 0) {
-            usersStore.refreshNearbyUsers().then(() => {
-                // Users loaded in usersStore.nearbyUsers
+        if (this.props.nearbyUsers.length == 0) {
+            this.props.dispatch(getNearbyUsers(1)).then(() => {
+                // Users loaded in this.props.nearbyUsers
                 setTimeout(() => {
                     this.setState({ usersLoaded: true })
                 }, 1);
@@ -43,7 +42,7 @@ export default class HomeScreen extends React.Component {
 
         // Show "No nearby users found" message on timeout
         setTimeout(() => {
-            if (usersStore.nearbyUsers.slice().length == 0) {
+            if (this.props.nearbyUsers.length == 0) {
                 setTimeout(() => {
                     this.setState({
                         usersLoaded: true,
@@ -61,6 +60,7 @@ export default class HomeScreen extends React.Component {
                     {renderIf(this.state.showNoUsersNearbyMsg,
                         <Text style={styles.noUsersNearbyText}>No users nearby...</Text>
                     )}
+
                     <Spinner visible={!this.state.usersLoaded} color={Colors.PINK} overlayColor='rgba(0,0,0,0)' />
                     <DiscoverList />
                 </View>
@@ -83,3 +83,11 @@ const styles = StyleSheet.create({
         marginTop: 16
     }
 });
+
+const mapStateToProps = state => {
+    return {
+        nearbyUsers: state.users.nearbyUsers,
+    }
+}
+
+export default connect(mapStateToProps)(DiscoverScreen);

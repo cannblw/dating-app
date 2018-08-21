@@ -4,14 +4,19 @@ import TabNavigator from './navigators/TabNavigator';
 
 import 'es6-symbol/implement';
 
-import { Provider } from 'mobx-react';
+import { createStore, applyMiddleware } from 'redux'
 
-import * as stores from './stores';
+import { Provider } from 'react-redux'
+import thunk from 'redux-thunk';
+
+import rootReducer from './reducers'
+
+const store = createStore(rootReducer, applyMiddleware(thunk));
 
 export default class App extends React.Component {
     render() {
         return (
-            <Provider {...stores}>
+            <Provider store={store}>
                 <TabNavigator />
             </Provider>
         );

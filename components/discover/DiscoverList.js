@@ -9,14 +9,16 @@ import {
 } from 'react-native';
 
 import {
-    inject,
-    observer,
-    Observer
-} from 'mobx-react';
-
-import {
     withNavigation
 } from 'react-navigation';
+
+import {
+    connect
+} from 'react-redux';
+
+import {
+    getNearbyUsers
+} from '../../actions/usersActions';
 
 import {
     FontAwesome
@@ -28,54 +30,53 @@ import renderIf from '../../utils/renderIf';
 // Margin between cards and screen limits
 const cardMargin = 8;
 
-@inject('usersStore') @observer
 class Discover extends React.Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            isRefreshing: false
+            isRefreshing: false,
+            page: 1
         }
     }
 
 
-    _renderItem = ({item, index}) =>
-        <Observer>{ () => {
-            let cardMarginStyle;
+    _renderItem = ({item, index}) => {
+        let cardMarginStyle;
 
-            if (index % 2 == 0) { // Card on right
-                cardMarginStyle = {marginRight: cardMargin / 2};
-            } else { // Card on left
-                cardMarginStyle = {marginLeft: cardMargin / 2};
-            }
+        if (index % 2 == 0) { // Card on right
+            cardMarginStyle = {marginRight: cardMargin / 2};
+        } else { // Card on left
+            cardMarginStyle = {marginLeft: cardMargin / 2};
+        }
 
-            return (
-                <View style={[styles.card, cardMarginStyle]}>
-                    <View style={styles.cardPhotoContainer}>
-                        <Image
-                            style={styles.cardPhoto}
-                            resizeMode='cover'
-                            source={{uri: item.photo}}
-                          />
-                    </View>
-
-                    <View style={styles.cardInfoContainer}>
-                        <View style={styles.nameContainer}>
-                            <Text numberOfLines={1} ellipsizeMode='tail' style={styles.infoText}>{item.name}</Text>
-                            <Text style={styles.infoText}>, {item.age}</Text>
-                            {renderIf(false, // TODO: Return user online status from api
-                                <FontAwesome name='circle' size={10} style={styles.onlineIcon} />
-                            )}
-                        </View>
-
-                        <View style={styles.distanceContainer}>
-                            <Text style={styles.infoText}>{item.distance} km</Text>
-                        </View>
-                    </View>
-
+        return (
+            <View style={[styles.card, cardMarginStyle]}>
+                <View style={styles.cardPhotoContainer}>
+                    <Image
+                        style={styles.cardPhoto}
+                        resizeMode='cover'
+                        source={{uri: item.photo}}
+                      />
                 </View>
-            )
-        }}</Observer>
+
+                <View style={styles.cardInfoContainer}>
+                    <View style={styles.nameContainer}>
+                        <Text numberOfLines={1} ellipsizeMode='tail' style={styles.infoText}>{item.name}</Text>
+                        <Text style={styles.infoText}>, {item.age}</Text>
+                        {renderIf(false, // TODO: Return user online status from api
+                            <FontAwesome name='circle' size={10} style={styles.onlineIcon} />
+                        )}
+                    </View>
+
+                    <View style={styles.distanceContainer}>
+                        <Text style={styles.infoText}>{item.distance} km</Text>
+                    </View>
+                </View>
+
+            </View>
+        );
+    };
 
     _keyExtractor = (item, index) => index.toString();
 
@@ -89,21 +90,29 @@ class Discover extends React.Component {
         })
     }
 
-    render() {
-        this.lastIndex = this.props.usersStore.nearbyUsers.length - 1;
+    _getNextPage() {
+        const nextPage = this.state.page + 1;
 
+        this.setState({
+            page: nextPage
+        });
+
+        return this.props.dispatch(getNearbyUsers(nextPage));
+    }
+
+    render() {
         return (
             <FlatList
-                data={this.props.usersStore.nearbyUsers.slice()}
+                data={this.props.nearbyUsers}
                 renderItem={this._renderItem}
                 keyExtractor={this._keyExtractor}
                 numColumns={2}
                 contentContainerStyle={styles.listContentContainer}
                 onEndReachedThreshold={1}
-                onEndReached={() => this.props.usersStore.fetchMoreNearbyUsers()}
+                onEndReached={() => this._getNextPage()}
                 onRefresh={() => {
                     this._setIsRefreshing(true);
-                    this.props.usersStore.refreshNearbyUsers().then(() => {
+                    this.props.dispatch(getNearbyUsers(1)).then(() => {
                         this._setIsRefreshing(false);
                     });
                 }}
@@ -176,4 +185,11 @@ const styles = StyleSheet.create({
 });
 
 
-export default withNavigation(Discover);
+const mapStateToProps = state => {
+    return {
+        nearbyUsers: state.users.nearbyUsers,
+    }
+}
+
+
+export default connect(mapStateToProps)(withNavigation(Discover));

@@ -4,10 +4,13 @@ import { createBottomTabNavigator } from 'react-navigation';
 
 import DiscoverNavigator from './DiscoverNavigator';
 
+import TestScreen from '../screens/TestScreen';
+
 import { Ionicons } from '@expo/vector-icons';
 
 export default createBottomTabNavigator({
     Discover: DiscoverNavigator,
+    Test: TestScreen
 },
 {
     initialRouteName: 'Discover',
